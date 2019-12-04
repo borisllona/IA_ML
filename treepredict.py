@@ -99,7 +99,7 @@ def buildtree(part,scoref=entropy,beta=0):
                 best_sets = sets
 
     if best_gain > beta:
-        bt = buildtree(best_sets[0], scoref=scoref, beta=beta) #Hay que pasarle la parte de el decision tree que contenga 
+        bt = buildtree(best_sets[0], scoref=scoref, beta=beta) 
         bf = buildtree(best_sets[1], scoref=scoref, beta=beta)
         return decisionnode(col=best_criteria[0],value=best_criteria[1],tb=bt,fb=bf)
     else:  #Hoja  
