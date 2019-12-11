@@ -1,0 +1,16 @@
+purple long yes rough yes
+purple long yes smooth yes
+red short yes hairy no
+blue short no smooth no
+blue short yes hairy yes
+red long no hairy no
+blue long yes smooth yes
+blue short yes smooth yes
+blue long no hairy no
+blue short yes rough yes
+red short no smooth no
+purple short no hairy yes
+red long yes hairy no
+purple long yes hairy yes
+purple long no rough no
+purple long no smooth no

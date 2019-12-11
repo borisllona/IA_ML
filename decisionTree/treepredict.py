@@ -10,6 +10,13 @@ class decisionnode():
         self.tb = tb
         self.fb = fb
 
+def readmushrooms(file_name):
+    lista = []
+    with open(file_name) as f:
+        for line in f:
+            row = line.split(' ')
+            lista.append(row)
+    return lista
 
 def read(file_name):
     lista = []
@@ -21,15 +28,15 @@ def read(file_name):
     return lista
 
 def unique_counts(part):
+    #Counts the number of prototypes of a given class in a partition part.
     if len(part)==0: return {}
     results = {}
-    length = len(part[0])-1
 
     for i in part:  
-        elm = i[length].split('\n')[0]
+        elm = i[-1].split('\n')[0]
         if elm in results: results[elm]+=1
         else: results[elm]=1
-
+    
     return results
 
 def gini_impurity(part):
@@ -81,6 +88,8 @@ def buildtree(part,scoref=entropy,beta=0):
 
     if len(part)==0: return decisionnode()
     
+    #Goodness of a partition: Decrease of impurity achived -> i(t) - pl*i(tl) - pr*(tr)
+    #We choose the best impirity decrease.
     t = scoref(part) 
     best_gain = 0 #Impurity decrement, it has to be max.
     best_criteria = (None,None) #(col,value)
@@ -119,11 +128,7 @@ def printtree(tree,indent=''):
         printtree(tree.fb,indent+' ')
 
 if __name__ == "__main__":
-    dat_file = read(sys.argv[1])
-    tree = buildtree(dat_file,scoref=gini_impurity)
+    #dat_file = readmushrooms(sys.argv[1])
+    dat_file = read(sys.argv[1]) #Fer millor la funcio read per a que llegeixi tot tipus darxius
+    tree = buildtree(dat_file,gini_impurity) #Falle amb la entropy
     printtree(tree)
-    #gini = gini_impurity(dat_file)
-    #entropy = entropy(dat_file)
-    #results = unique_counts(dat_file)
-
-    #Quedarnos con el mejor decremento de impureza
