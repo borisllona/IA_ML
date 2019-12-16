@@ -145,5 +145,5 @@ def printtree(tree,indent=''):
 if __name__ == "__main__":
     dat_file = read(sys.argv[1])
     tree = buildtree(dat_file) #Pequeño fallo a veces en el final del arbol, testear.
-    print(classify(tree,('blue,long,yes,smooth')))
-    #printtree(tree)
+    print(classify(tree,['red','short','no','rough']))
+    printtree(tree)
