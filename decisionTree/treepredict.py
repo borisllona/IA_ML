@@ -10,20 +10,15 @@ class decisionnode():
         self.tb = tb
         self.fb = fb
 
-def readmushrooms(file_name):
-    lista = []
-    with open(file_name) as f:
-        for line in f:
-            row = line.split(' ')
-            lista.append(row)
-    return lista
-
 def read(file_name):
     lista = []
     with open(file_name) as f:
         for line in f:
-            row = line.split('\t')
-            row[3] = int(row[3])
+            line = line.replace(' ','\t')
+            line = line.replace(',','\t')
+            row = line.split('\t',)
+            for i in range(len(row)):
+                if row[i].isdigit(): row[i] = int(row[i])
             lista.append(row)
     return lista
 
@@ -54,24 +49,25 @@ def gini_impurity(part):
 
 def entropy(part):
     from math import log
-    
+    log2 = lambda x: log(x)/log(2)
+
     results = unique_counts(part)
     imp = 0.0
-    total = len(part)
+    total = float(len(part))
 
-    for i in results.values():
-        p = i/float(total)
-        imp -= p * log(p,2.0)
-   
-    return(-imp)
+    probs = (v / total for v in results.values())
+
+    return -sum((p * log2(p) for p in probs))
+
 
 def divideset(part,column,value):
     split_function = None
     set1, set2 = [], []
 
+    #We separate in two functions, one for categorical values and another for digits.
     if value == type(int) or value == type(float):
         split_function =  lambda prot: prot[column]<=value
-    else: #categoricos, string
+    else:
         split_function =  lambda prot: prot[column]==value
 
 
@@ -103,7 +99,7 @@ def buildtree(part,scoref=entropy,beta=0):
             current_score = t - (len(sets[0])/len(part)*tl) - (len(sets[1])/len(part)*tr)
             
             if current_score > best_gain:
-                best_gain = current_score
+                    best_gain = current_score
                 best_criteria = (index,column[index])
                 best_sets = sets
 
@@ -128,7 +124,6 @@ def printtree(tree,indent=''):
         printtree(tree.fb,indent+' ')
 
 if __name__ == "__main__":
-    #dat_file = readmushrooms(sys.argv[1])
-    dat_file = read(sys.argv[1]) #Fer millor la funcio read per a que llegeixi tot tipus darxius
-    tree = buildtree(dat_file,gini_impurity) #Falle amb la entropy
+    dat_file = read(sys.argv[1])
+    tree = buildtree(dat_file) #Pequeño fallo a veces en el final del arbol, testear.
     printtree(tree)
