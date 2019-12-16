@@ -10,6 +10,10 @@ class decisionnode():
         self.tb = tb
         self.fb = fb
 
+    def isLeaf(self):
+        return self.results != None
+
+
 def read(file_name):
     lista = []
     with open(file_name) as f:
@@ -99,7 +103,7 @@ def buildtree(part,scoref=entropy,beta=0):
             current_score = t - (len(sets[0])/len(part)*tl) - (len(sets[1])/len(part)*tr)
             
             if current_score > best_gain:
-                    best_gain = current_score
+                best_gain = current_score
                 best_criteria = (index,column[index])
                 best_sets = sets
 
@@ -109,6 +113,21 @@ def buildtree(part,scoref=entropy,beta=0):
         return decisionnode(col=best_criteria[0],value=best_criteria[1],tb=bt,fb=bf)
     else:  #Hoja  
         return decisionnode(results=unique_counts(part))
+
+def classify(tree, newdata):
+
+    if tree.value == type(int) or tree.value == type(float):
+        split_function =  lambda prot: prot[tree.col]<=tree.value
+    else:
+        split_function =  lambda prot: prot[tree.col]==tree.value
+
+    while not tree.isLeaf():
+        if split_function(newdata):
+            tree = tree.tb
+        else:
+            tree = tree.fb
+
+    return tree.results
 
 def printtree(tree,indent=''):
     # Is this a leaf node?
@@ -126,4 +145,5 @@ def printtree(tree,indent=''):
 if __name__ == "__main__":
     dat_file = read(sys.argv[1])
     tree = buildtree(dat_file) #Pequeño fallo a veces en el final del arbol, testear.
-    printtree(tree)
+    print(classify(tree,('blue,long,yes,smooth')))
+    #printtree(tree)
