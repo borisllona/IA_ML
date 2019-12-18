@@ -130,34 +130,47 @@ def classify(tree, newdata):
 
     return tree.results
 
-def path(): #MIRAR EL CAMI QUE FA I RETORNAR EL VALOR ESPERAT, SI ES IGUAL A EL RESULTAT DE CLASSIFY ES CORRECTE SINO ERROR.
-    pass
-
-def isCorrect(row, result):
-    #return path()==result
-    pass
+def isCorrect(newInfo, result):
+    for i in result.items():
+        return str(newInfo[-1].strip('\n'))==i[0]
 
 def test_performance(testset, trainingset):
     badPredict=0
     tree = buildtree(trainingset)
-    printtree(tree)
-    print("")
 
-    for row in testset:
-        result = classify(tree,row)
-        print("The row: "+str(row)+" classified as:"+str(result))
-        if not isCorrect(row,result): badPredict+=1
+    for newInfo in testset:
+        result = classify(tree,newInfo)
+        if not isCorrect(newInfo,result): badPredict+=1
     
-    return badPredict
+    return (1 - badPredict/len(testset))*100
 
 def test(sets,incrementTrainingSet=0):
     trainingPercentage = 0.5+incrementTrainingSet
     shuffle(sets)
 
-    testS = [sets[i] for i in range(0,int(len(sets)//trainingPercentage**-1))]
-    trainingS = [sets[i] for i in range(int(len(sets)//trainingPercentage**-1),len(sets))]
+    trainingS = [sets[i] for i in range(0,int(len(sets)//trainingPercentage**-1))]
+    testS = [sets[i] for i in range(int(len(sets)//trainingPercentage**-1),len(sets))]
     
-    test_performance(testS,trainingS)
+    print("Accuracy: "+str(test_performance(testS,trainingS))+"%")
+
+
+def prune(tree, mingain): #TEST
+
+  if not tree.tb.isLeaf(): prune(tree.tb, mingain)
+  if not tree.fb.isLeaf(): prune(tree.fb, mingain)
+
+  # merge leaves
+  if tree.tb.results != None and tree.fb.results != None:
+    tb, fb = [], []
+    for v, c in tree.tb.results.iteritems(): tb += [[v]] * c
+    for v, c in tree.fb.results.iteritems(): fb += [[v]] * c
+
+    p = float(len(tb)) / len(tb + fb)
+    delta = entropy(tb+fb) - p*entropy(tb) - (1-p)*entropy(fb)
+    if delta < mingain:
+      tree.tb, tree.fb = None, None
+      tree.results = unique_counts(tb + fb)
+
 
 def printtree(tree,indent=''):
     # Is this a leaf node?
@@ -174,7 +187,4 @@ def printtree(tree,indent=''):
 
 if __name__ == "__main__":
     dat_file = read(sys.argv[1])
-    #tree = buildtree(dat_file) #Pequeño fallo a veces en el final del arbol, testear.
-    test(dat_file,0)
-    #print(classify(tree,['red','short','no','rough']))
-    #printtree(tree)
+    test(dat_file,0.2)
