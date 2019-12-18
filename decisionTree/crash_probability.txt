@@ -1,0 +1,15 @@
+No University FWD No Low
+Yes College RWD No Medium
+No University AWD Yes High
+Yes Doctor AWD Yes Medium
+No University FWD No Low
+No High-School FWD No Low
+Yes College RWD No Medium
+Yes College RWD Yes Medium
+No Doctor AWD Yes High
+No University FWD No Low
+No High-School RWD Yes Low
+Yes College RWD No Medium
+No High-School RWD Yes Low
+No High-School FWD No Low
+Yes University AWD Yes High

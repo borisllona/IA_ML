@@ -1,4 +1,5 @@
 import sys
+from random import shuffle
 
 dat_file = []
 
@@ -129,6 +130,35 @@ def classify(tree, newdata):
 
     return tree.results
 
+def path(): #MIRAR EL CAMI QUE FA I RETORNAR EL VALOR ESPERAT, SI ES IGUAL A EL RESULTAT DE CLASSIFY ES CORRECTE SINO ERROR.
+    pass
+
+def isCorrect(row, result):
+    #return path()==result
+    pass
+
+def test_performance(testset, trainingset):
+    badPredict=0
+    tree = buildtree(trainingset)
+    printtree(tree)
+    print("")
+
+    for row in testset:
+        result = classify(tree,row)
+        print("The row: "+str(row)+" classified as:"+str(result))
+        if not isCorrect(row,result): badPredict+=1
+    
+    return badPredict
+
+def test(sets,incrementTrainingSet=0):
+    trainingPercentage = 0.5+incrementTrainingSet
+    shuffle(sets)
+
+    testS = [sets[i] for i in range(0,int(len(sets)//trainingPercentage**-1))]
+    trainingS = [sets[i] for i in range(int(len(sets)//trainingPercentage**-1),len(sets))]
+    
+    test_performance(testS,trainingS)
+
 def printtree(tree,indent=''):
     # Is this a leaf node?
     if tree.results!=None:
@@ -144,6 +174,7 @@ def printtree(tree,indent=''):
 
 if __name__ == "__main__":
     dat_file = read(sys.argv[1])
-    tree = buildtree(dat_file) #Pequeño fallo a veces en el final del arbol, testear.
-    print(classify(tree,['red','short','no','rough']))
-    printtree(tree)
+    #tree = buildtree(dat_file) #Pequeño fallo a veces en el final del arbol, testear.
+    test(dat_file,0)
+    #print(classify(tree,['red','short','no','rough']))
+    #printtree(tree)
