@@ -87,34 +87,73 @@ def hcluster(rows,distance=pearson):
         
     return clust[0]
 
-def kcluster(rows, distance=euclidean, k=4): #FALTE REVISAR, RESTARTING POLICIES I ENTENDRE CODI
+def _kclusterRP(rows, distance=euclidean,iter=2,k=4): #FALTE REVISAR, RESTARTING POLICIES I ENTENDRE CODI
+    for i in range(0,iter):
+        minCost = 1000000
+        best_clusters_assign = None  
 
-  ranges = zip(map(min, transpose(rows)), map(max, transpose(rows)))
+        ranges = zip(map(min, transpose(rows)), map(max, transpose(rows)))
 
-  clusters = [[uniform(r[0], r[1]) for r in ranges] for j in range(k)]
+        clusters = [[uniform(r[0], r[1]) for r in ranges] for j in range(k)]
 
-  lastmatches = None
-  for x in range(100):
-    bestmatches = [[] for i in range(k)]
+        lastmatches = None
+        for x in range(100):
+            bestmatches = [[] for i in range(k)]
 
-    # find best centroid for each row
-    for j in range(len(rows)):
-      bestmatches[closestPoint(rows[j], clusters, distance)].append(j)
-      
-    # If we get the same result from the last match we finish
-    if bestmatches == lastmatches: break
-    lastmatches = bestmatches
+            # find best centroid for each row
+            for j in range(len(rows)):
+                bestmatches[closestPoint(rows[j], clusters, distance)].append(j)
+            
+            # If we get the same result from the last match we finish
+            if bestmatches == lastmatches: break
+            lastmatches = bestmatches
 
-    # move centroids to the averages of their elements
-    for i in range(k):
-      clusters[i] = average(bestmatches[i], rows)
+            # move centroids to the averages of their elements
+            for i in range(k):
+                clusters[i] = average(bestmatches[i], rows)
+            
+            #checks the cost of the asigned combination
+            centroide_distances = [ 0 for _ in range(k)] 
+            for cluster, best_match in enumerate(bestmatches):
+                for item in best_match: # square of distances of all items to centroid
+                    centroide_distances[cluster] += pow(euclidean(clusters[cluster], rows[item]), 2)
+            actualCost = sum(centroide_distances)
 
-  return bestmatches
+            if actualCost < minCost:
+                minCost = actualCost
+                bestAssigment = bestmatches
 
+    return bestAssigment
+
+def _kcluster(rows,distance=euclidean,k=4):
+    ranges = zip(map(min, transpose(rows)), map(max, transpose(rows)))
+
+    clusters = [[uniform(r[0], r[1]) for r in ranges] for j in range(k)]
+
+    lastmatches = None
+    for x in range(100):
+        bestmatches = [[] for i in range(k)]
+
+        # find best centroid for each row
+        for j in range(len(rows)):
+            bestmatches[closestPoint(rows[j], clusters, distance)].append(j)
+        
+        # If we get the same result from the last match we finish
+        if bestmatches == lastmatches: break
+        lastmatches = bestmatches
+
+        # move centroids to the averages of their elements
+        for i in range(k):
+            clusters[i] = average(bestmatches[i], rows)
+    
+    return bestmatches
+
+def kcluster(rows,iter,distance=euclidean,restart_policies = False,k=4):
+    if restart_policies: return _kclusterRP(rows, distance=euclidean,iter=iter,k=4)
+    else: return _kcluster(rows, distance=euclidean,k=4)
 
 def transpose(data):
     return [list(elem) for elem in zip(*data)]
-
 
 def closestPoint(v, points, distance):
   best = 0
@@ -151,8 +190,15 @@ def printclust(clust,labels=None,n=0):
     if clust.right!=None:
         printclust(clust.right,labels=labels,n=n+1)
 
-if __name__ == "__main__":
+def showKClust(kclust):
+    for i in range(len(kclust)):
+        print('K-cluster: '+str([rownames[r] for r in kclust[i]]))
+        print()
+
+if __name__ == "__main__": #PERSON DISTANCE NOT WORKING
     rownames,colnames,data = readfile(sys.argv[1])
-    clust = kcluster(data)
-    print(clust)
-    dendrogram.drawdendrogram(clust,rownames)
+    kclust = kcluster(data,5,restart_policies=True,k=5)
+    showKClust(kclust)
+
+    #clust = hcluster(rownames)
+    #dendrogram.drawdendrogram(clust,rownames)
