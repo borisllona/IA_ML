@@ -1,5 +1,6 @@
 from math import sqrt
 from math import fabs
+from random import uniform
 import sys
 import dendrogram
 
@@ -86,6 +87,53 @@ def hcluster(rows,distance=pearson):
         
     return clust[0]
 
+def kcluster(rows, distance=euclidean, k=4): #FALTE REVISAR, RESTARTING POLICIES I ENTENDRE CODI
+
+  ranges = zip(map(min, transpose(rows)), map(max, transpose(rows)))
+
+  clusters = [[uniform(r[0], r[1]) for r in ranges] for j in range(k)]
+
+  lastmatches = None
+  for x in range(100):
+    bestmatches = [[] for i in range(k)]
+
+    # find best centroid for each row
+    for j in range(len(rows)):
+      bestmatches[closestPoint(rows[j], clusters, distance)].append(j)
+      
+    # If we get the same result from the last match we finish
+    if bestmatches == lastmatches: break
+    lastmatches = bestmatches
+
+    # move centroids to the averages of their elements
+    for i in range(k):
+      clusters[i] = average(bestmatches[i], rows)
+
+  return bestmatches
+
+
+def transpose(data):
+    return [list(elem) for elem in zip(*data)]
+
+
+def closestPoint(v, points, distance):
+  best = 0
+  for i in range(len(points)):
+    d = distance(points[i], v)
+    if d < distance(points[best], v): best = i
+  return best
+
+
+def average(indices, rows):
+  avg = [0.0] * len(rows[0])
+  if len(indices) > 0:
+    for rowid in indices:
+      for m in range(len(rows[0])):
+        avg[m] += rows[rowid][m]
+    for j in range(len(avg)):
+      avg[j] /= len(indices)
+  return avg
+
 def printclust(clust,labels=None,n=0):
     # indent to make a hierarchy layout
     for i in range(n): print(' '),
@@ -103,11 +151,8 @@ def printclust(clust,labels=None,n=0):
     if clust.right!=None:
         printclust(clust.right,labels=labels,n=n+1)
 
-
-def transposeMatrix(data):
-    return [list(elem) for elem in zip(*data)]
-
 if __name__ == "__main__":
     rownames,colnames,data = readfile(sys.argv[1])
-    clust = hcluster(data)
+    clust = kcluster(data)
+    print(clust)
     dendrogram.drawdendrogram(clust,rownames)
