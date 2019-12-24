@@ -149,8 +149,8 @@ def _kcluster(rows,distance=euclidean,k=4):
     return bestmatches
 
 def kcluster(rows,iter,distance=euclidean,restart_policies = False,k=4):
-    if restart_policies: return _kclusterRP(rows, distance=euclidean,iter=iter,k=4)
-    else: return _kcluster(rows, distance=euclidean,k=4)
+    if restart_policies: return _kclusterRP(rows, distance=euclidean,iter=iter,k=k)
+    else: return _kcluster(rows, distance=euclidean,k=k)
 
 def transpose(data):
     return [list(elem) for elem in zip(*data)]
@@ -161,7 +161,6 @@ def closestPoint(v, points, distance):
     d = distance(points[i], v)
     if d < distance(points[best], v): best = i
   return best
-
 
 def average(indices, rows):
   avg = [0.0] * len(rows[0])
@@ -197,7 +196,7 @@ def showKClust(kclust):
 
 if __name__ == "__main__": #PERSON DISTANCE NOT WORKING
     rownames,colnames,data = readfile(sys.argv[1])
-    kclust = kcluster(data,5,restart_policies=True,k=5)
+    kclust = kcluster(data,5,distance=euclidean,restart_policies=False,k=7)
     showKClust(kclust)
 
     #clust = hcluster(rownames)

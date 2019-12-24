@@ -154,20 +154,21 @@ def test(sets,incrementTrainingSet=0):
     print("Accuracy: "+str(test_performance(testS,trainingS))+"%")
 
 
-def prune(tree, mingain): #TEST
+def prune(tree, beta):
 
-  if not tree.tb.isLeaf(): prune(tree.tb, mingain)
-  if not tree.fb.isLeaf(): prune(tree.fb, mingain)
+  if not tree.tb.isLeaf(): prune(tree.tb, beta)
+  if not tree.fb.isLeaf(): prune(tree.fb, beta)
 
-  # merge leaves
+  #Merge leaves
   if tree.tb.results != None and tree.fb.results != None:
     tb, fb = [], []
-    for v, c in tree.tb.results.iteritems(): tb += [[v]] * c
-    for v, c in tree.fb.results.iteritems(): fb += [[v]] * c
-
+    for v, c in tree.tb.results.items(): tb += [[v]] * c
+    for v, c in tree.fb.results.items(): fb += [[v]] * c
+   
+    #Test the reduction in entropy
     p = float(len(tb)) / len(tb + fb)
     delta = entropy(tb+fb) - p*entropy(tb) - (1-p)*entropy(fb)
-    if delta < mingain:
+    if delta < beta:
       tree.tb, tree.fb = None, None
       tree.results = unique_counts(tb + fb)
 
